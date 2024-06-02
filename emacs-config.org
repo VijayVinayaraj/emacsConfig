@@ -16,27 +16,27 @@
 
 ** General Configuration
 #+begin_src emacs-lisp
-  (setq inhibit-startup-message t)
-  (setq pixel-scroll-precision-large-scroll-height 80.0)
-  (scroll-bar-mode -1)
-  (tool-bar-mode -1)
-  (tooltip-mode -1)
-  (set-fringe-mode 10)
-  (menu-bar-mode -1)
- ;; (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  (setq visible-bell t)
-  (column-number-mode)
-  (global-display-line-numbers-mode t)
-  (setq gc-cons-threshold (* 2 1000 1000))
-  (setq make-backup-files nil)
-  (setq create-lockfiles nil)
-  (add-to-list 'default-frame-alist '(alpha-background . 90))
-  ;; auto-save-mode doesn't create the path automatically!
-  (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
-  (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
-        auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
-(global-set-key [?\C-\=] 'text-scale-increase)
-   (global-set-key [?\C-\-] 'text-scale-decrease)
+    (setq inhibit-startup-message t)
+    (setq pixel-scroll-precision-large-scroll-height 80.0)
+    (scroll-bar-mode -1)
+    (tool-bar-mode -1)
+    (tooltip-mode -1)
+    (set-fringe-mode 10)
+    (menu-bar-mode -1)
+   ;; (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+    (setq visible-bell t)
+    (column-number-mode)
+    (global-display-line-numbers-mode t)
+    (setq gc-cons-threshold (* 2 1000 1000))
+    (setq make-backup-files nil)
+    (setq create-lockfiles nil)
+    (add-to-list 'default-frame-alist '(alpha-background . 90))
+    ;; auto-save-mode doesn't create the path automatically!
+    (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
+    (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
+          auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
+  (global-set-key [?\C-\=] 'text-scale-increase)
+     (global-set-key [?\C-\-] 'text-scale-decrease)
 
 #+end_src
 ** Yes or no to y n
@@ -120,7 +120,6 @@ setup no littering option
   :config
    (setq yas-installed-snippets-dir "~/emacs/yasnippet-snippets")
    (yas-global-mode 1)
-  (bind-key "\t" 'hippie-expand yas-minor-mode-map)
 )
 #+end_src
 ** Packages for editing lisp
@@ -184,15 +183,15 @@ setup no littering option
 #+end_src
 ** iedit Mode
 #+begin_src emacs-lisp
-
-  (use-package iedit
-    :bind
-    (("C-;"  . iedit-mode) ; also note: C-' toggles focus of matches
-     :map iedit-mode-keymap
-     ("C-g" . iedit-mode)) )
+  ;; (use-package iedit
+  ;;   :bind
+  ;;   (("<return>" . nil)("C-m"  . iedit-mode) ; also note: C-' toggles focus of matches
+  ;;    :map iedit-mode-keymap
+  ;;    ("C-g" . iedit-mode)) )
 #+end_src
 ** Org source block
 #+begin_src emacs-lisp
+  (setq org-clock-sound "~/Music/rain_alarm.mp3")
   (with-eval-after-load 'org
     ;; This is needed as of Org 9.2
     (require 'org-tempo)
@@ -398,8 +397,7 @@ setup no littering option
   	("C-k" . corfu-previous)
   	("<escape>" . corfu-quit)
   	("<return>" . corfu-insert)
-  	("SPC" . corfu-insert-separator)
-  	("C-g" . corfu-quit)
+    	("C-g" . corfu-quit)
   	("M-l" . corfu-show-location))
     :custom
     ;; Works with `indent-for-tab-command'. Make sure tab doesn't indent when you
@@ -435,15 +433,7 @@ setup no littering option
     :init
     (global-corfu-mode)
     :config
-    (defun corfu-enable-always-in-minibuffer ()
-      "Enable Corfu in the minibuffer if Vertico/Mct are not active."
-      (unless (or (bound-and-true-p mct--active) ; Useful if I ever use MCT
-                  (bound-and-true-p vertico--input))
-        (setq-local corfu-auto nil)       ; Ensure auto completion is disabled
-        (corfu-mode 1)))
-    (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
-
-    ;; Setup lsp to use corfu for lsp completion
+        ;; Setup lsp to use corfu for lsp completion
     (defun kb/corfu-setup-lsp ()
       "Use orderless completion style with lsp-capf instead of the
   default lsp-passthrough."
@@ -502,11 +492,13 @@ setup no littering option
      ("M-p r" . cape-rfc1345))
     :init
     (add-to-list 'completion-at-point-functions #'cape-file)
-    (add-to-list 'completion-at-point-functions #'cape-ispell)
     (add-to-list 'completion-at-point-functions #'cape-dict)
     (add-to-list 'completion-at-point-functions #'cape-dabbrev))
-
 #+end_src
+
+#+RESULTS:
+: cape-rfc1345
+
 ** TODO Emacs
 #+begin_src emacs-lisp
   ;; A few more useful configurations...
@@ -697,16 +689,6 @@ setup no littering option
     )
 
 #+end_src
-** Pretterjs
-#+begin_src emacs-lisp
-  (use-package prettier-js
-    :ensure t)
-  (add-hook 'web-mode-hook #'(lambda ()
-                               (enable-minor-mode
-                                '("\\.jsx?\\'" . prettier-js-mode))
-  			     (enable-minor-mode
-                                '("\\.tsx?\\'" . prettier-js-mode))))
-#+end_src
 ** Flycheck
 #+begin_src emacs-lisp
   (use-package flycheck
@@ -733,7 +715,7 @@ setup no littering option
       (add-hook 'orderless-style-dispatchers #'my/orderless-dispatch-flex-first nil 'local)
       ;; Optionally configure the cape-capf-buster.
       (setq-local completion-at-point-functions (list (cape-capf-buster #'lsp-completion-at-point))))
-    :hook (((lsp-completion-mode . my/lsp-mode-setup-completion)(c-mode          ; clangd
+    :hook (((lsp-mode . electric-pair-mode)(lsp-completion-mode . my/lsp-mode-setup-completion)(c-mode          ; clangd
   							       c++-mode        ; clangd
   							       c-or-c++-mode   ; clangd
   							       js-mode         ; ts-ls (tsserver wrapper)
@@ -741,7 +723,7 @@ setup no littering option
   							       typescript-mode ; ts-ls (tsserver wrapper)
   							       python-mode     ; pyright
   							       web-mode        ; ts-ls/HTML/CSS
-  							       ) . lsp-deferred))
+  							       tsx-ts-mode) . lsp-deferred))
     :commands lsp
     :config
     (setq lsp-enable-which-key-integration t)
@@ -768,7 +750,37 @@ setup no littering option
     :custom
     (lsp-ui-doc-position 'bottom))
 #+end_src
+** Lsp Booster
+#+begin_src emacs-lisp
+(defun lsp-booster--advice-json-parse (old-fn &rest args)
+  "Try to parse bytecode instead of json."
+  (or
+   (when (equal (following-char) ?#)
+     (let ((bytecode (read (current-buffer))))
+       (when (byte-code-function-p bytecode)
+         (funcall bytecode))))
+   (apply old-fn args)))
+(advice-add (if (progn (require 'json)
+                       (fboundp 'json-parse-buffer))
+                'json-parse-buffer
+              'json-read)
+            :around
+            #'lsp-booster--advice-json-parse)
 
+(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+  "Prepend emacs-lsp-booster command to lsp CMD."
+  (let ((orig-result (funcall old-fn cmd test?)))
+    (if (and (not test?)                             ;; for check lsp-server-present?
+             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+             lsp-use-plists
+             (not (functionp 'json-rpc-connection))  ;; native json-rpc
+             (executable-find "emacs-lsp-booster"))
+        (progn
+          (message "Using emacs-lsp-booster for %s!" orig-result)
+          (cons "emacs-lsp-booster" orig-result))
+      orig-result)))
+(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
+#+end_src
 ** Dap mode
 #+begin_src emacs-lisp
   (use-package dap-mode
