@@ -13,9 +13,15 @@
   (setenv "LSP_USE_PLISTS" "true")
 #+end_src
 
-
+** Disable warning
+#+begin_src emacs-lisp
+(when (native-comp-available-p)
+  (setq native-comp-async-report-warnings-errors 'silent) ; Emacs 28 with native compilation
+  (setq native-compile-prune-cache t))
+#+end_src
 ** General Configuration
 #+begin_src emacs-lisp
+<<<<<<< Updated upstream
     (setq inhibit-startup-message t)
     (setq pixel-scroll-precision-large-scroll-height 80.0)
     (scroll-bar-mode -1)
@@ -37,6 +43,30 @@
           auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
   (global-set-key [?\C-\=] 'text-scale-increase)
      (global-set-key [?\C-\-] 'text-scale-decrease)
+=======
+  (setq inhibit-startup-message t)
+  (setq pixel-scroll-precision-large-scroll-height 80.0)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)
+  (tooltip-mode -1)
+  (set-fringe-mode 10)
+  (menu-bar-mode -1)
+ ;; (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  (setq visible-bell t)
+  (column-number-mode)
+  (global-display-line-numbers-mode t)
+  (setq gc-cons-threshold (* 2 1000 1000))
+  (setq make-backup-files nil)
+  (setq create-lockfiles nil)
+(set-face-attribute 'default nil :font "FiraCode Nerd Font" :height 110)
+  (add-to-list 'default-frame-alist '(alpha-background . 90))
+  ;; auto-save-mode doesn't create the path automatically!
+  (make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
+  (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
+        auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
+(global-set-key [?\C-\=] 'text-scale-increase)
+   (global-set-key [?\C-\-] 'text-scale-decrease)
+>>>>>>> Stashed changes
 
 #+end_src
 ** Yes or no to y n
@@ -60,6 +90,33 @@
   (straight-use-package 'use-package)
   (setq straight-use-package-by-default t)
 
+#+end_src
+** quit dwim
+#+begin_src emacs-lisp
+  (defun prot-simple-keyboard-quit-dwim ()
+    "Do-What-I-Mean behaviour for a general `keyboard-quit'.
+
+  The generic `keyboard-quit' does not do the expected thing when
+  the minibuffer is open.  Whereas we want it to close the
+  minibuffer, even without explicitly focusing it.
+
+  The DWIM behaviour of this command is as follows:
+
+  - When the region is active, disable it.
+  - When a minibuffer is open, but not focused, close the minibuffer.
+  - When the Completions buffer is selected, close it.
+  - In every other case use the regular `keyboard-quit'."
+    (interactive)
+    (cond
+     ((region-active-p)
+      (keyboard-quit))
+     ((derived-mode-p 'completion-list-mode)
+      (delete-completion-window))
+     ((> (minibuffer-depth) 0)
+      (abort-recursive-edit))
+     (t
+      (keyboard-quit))))
+  
 #+end_src
 ** no littering
 setup no littering option
@@ -124,58 +181,60 @@ setup no littering option
 #+end_src
 ** Packages for editing lisp
 #+begin_src emacs-lisp
-(with-eval-after-load 'elisp-mode
-  (define-key emacs-lisp-mode-map (kbd "C-c C-d C-d") 'describe-function)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-d d") 'describe-function)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-k") 'eval-buffer))
+  (with-eval-after-load 'elisp-mode
+    (define-key emacs-lisp-mode-map (kbd "C-c C-d C-d") 'describe-function)
+    (define-key emacs-lisp-mode-map (kbd "C-c C-d d") 'describe-function)
+    (define-key emacs-lisp-mode-map (kbd "C-c C-k") 'eval-buffer))
 
-(use-package highlight-quoted
-  :ensure t
-  :hook
-  (emacs-lisp-mode . highlight-quoted-mode))
+  (use-package highlight-quoted
+    :ensure t
+    :hook
+    (emacs-lisp-mode . highlight-quoted-mode))
 
-(use-package eros
-  :ensure t
-  :hook
-  (emacs-lisp-mode . eros-mode))
+  (use-package eros
+    :ensure t
+    :hook
+    (emacs-lisp-mode . eros-mode))
 
-(use-package suggest
-  :ensure t
-  :defer t)
+  (use-package suggest
+    :ensure t
+    :defer t)
 
-(use-package ipretty
-  :defer t
-  :ensure t
-  :config
-  (ipretty-mode 1))
+  (use-package ipretty
+    :defer t
+    :ensure t
+    :config
+    (ipretty-mode 1))
 
-;; Hide package namespaces
-(use-package nameless
-  :ensure t
-  :hook
-  (emacs-lisp-mode .  nameless-mode)
-  :custom
-  (nameless-global-aliases '())
-  (nameless-private-prefix t))
+  ;; Hide package namespaces
+  (use-package nameless
+    :ensure t
+    :hook
+    (emacs-lisp-mode .  nameless-mode)
+    :custom
+    (nameless-global-aliases '())
+    (nameless-private-prefix t))
 
-(use-package erefactor
-  :ensure t
-  :defer t)
+  (use-package erefactor
+    :ensure t
+    :defer t)
 
-(use-package flycheck-package
-  :ensure t
-  :hook
-  (emacs-lisp-mode . flycheck-package-setup))
+  (use-package flycheck-package
+    :ensure t
+    :after flycheck
+    :hook
+    (emacs-lisp-mode . flycheck-package-setup))
 
-;; Emacs Lisp Static Analyzer
-(use-package elsa
-  :defer t
-  :ensure t)
+  ;; Emacs Lisp Static Analyzer
+  (use-package elsa
+    :defer t
+    :ensure t)
 
-(use-package flycheck-elsa
-  :ensure t
-  :hook
-  (emacs-lisp-mode . flycheck-elsa-setup))
+  (use-package flycheck-elsa
+    :ensure t
+    :after flycheck
+    :hook
+    (emacs-lisp-mode . flycheck-elsa-setup))
 #+end_src
 ** Lispy
 #+begin_src emacs-lisp
@@ -188,6 +247,10 @@ setup no littering option
   ;;   (("<return>" . nil)("C-m"  . iedit-mode) ; also note: C-' toggles focus of matches
   ;;    :map iedit-mode-keymap
   ;;    ("C-g" . iedit-mode)) )
+#+end_src
+** Org
+#+begin_src emacs-lisp
+(use-package org)
 #+end_src
 ** Org source block
 #+begin_src emacs-lisp
@@ -214,7 +277,7 @@ setup no littering option
   (use-package doom-themes
     :config
     (doom-themes-visual-bell-config)
-    :init (load-theme 'doom-ephemeral t ))
+    :init (load-theme 'doom-moonlight t ))
 #+end_src
 
 
@@ -261,6 +324,8 @@ setup no littering option
 ** KeyBindings
 #+begin_src emacs-lisp
   (bind-keys*
+   ("ESC ESC" . prot-simple-keyboard-quit-dwim)
+    ("C-g" . prot-simple-keyboard-quit-dwim)
    ("C-t . f" . find-file)
    ("C-t . c" . comment-region)
    ("C-t . u" . uncomment-region)
@@ -334,22 +399,23 @@ setup no littering option
     (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 #+end_src
 
-** Org Roam
+** Howm
 #+begin_src emacs-lisp
-  (use-package org-roam
-    :ensure t
-    :init
-    (setq org-roam-v2-ack t)
-    :custom
-    (org-roam-directory "~/orgRoam")
-    (org-roam-completion-everywhere t)
-    :bind (("C-c n l" . org-roam-buffer-toggle)
-           ("C-c n f" . org-roam-node-find)
-           ("C-c n i" . org-roam-node-insert)
-           :map org-mode-map
-           ("C-M-i"    . completion-at-point))
-    :config
-    (org-roam-setup))
+  (use-package howm
+  :ensure t
+  :init
+  ;; Where to store the files?
+  (setq howm-directory "~/orgRoam/pages/")
+  (setq howm-home-directory howm-directory)
+  ;; What format to use for the files?
+  (setq howm-file-name-format "%Y-%m-%d-%H%M%S.org")
+  (setq howm-view-title-header "*")
+  (setq howm-dtime-format "<%Y-%m-%d %a %H:%M>")
+  ;; Avoid conflicts with Org-mode by changing Howm's prefix from "C-c ,".
+  (setq howm-prefix (kbd "C-c ;"))
+  :bind*
+  ;; Conveniently open the Howm menu with "C-c ; ;".
+  ("C-c ; ;" . howm-menu))
 #+end_src
 ** Vertico
 #+begin_src emacs-lisp
@@ -396,9 +462,8 @@ setup no littering option
   	("C-j" . corfu-next)
   	("C-k" . corfu-previous)
   	("<escape>" . corfu-quit)
-  	("<return>" . corfu-insert)
-    	("C-g" . corfu-quit)
-  	("M-l" . corfu-show-location))
+  	("<return>" . corfu-insert)	
+  	("C-g" . corfu-quit))
     :custom
     ;; Works with `indent-for-tab-command'. Make sure tab doesn't indent when you
     ;; want to perform completion
@@ -414,7 +479,11 @@ setup no littering option
     (corfu-count 14)
     (corfu-scroll-margin 4)
     (corfu-cycle nil)
-
+    (corfu-quit-at-boundary t)   ; Quit popup when typing separator (space)
+(corfu-separator ?\s)                ; Use space as separator
+(corfu-quit-no-match t)     ; Quit if no match after separator
+(corfu-preview-current nil)          ; Disable preview for better VS Code-like experience
+(corfu-preselect 'prompt) 
     ;; `nil' means to ignore `corfu-separator' behavior, that is, use the older
     ;; `corfu-quit-at-boundary' = nil behavior. Set this to separator if using
     ;; `corfu-auto' = `t' workflow (in that case, make sure you also set up
@@ -540,10 +609,62 @@ setup no littering option
 #+end_src
 ** Avy
 #+begin_src emacs-lisp
-  (use-package avy
-    :ensure t
-    :config
-    (avy-setup-default))
+        (use-package avy
+          :ensure t
+          :config
+          (avy-setup-default))
+
+        (defun avy-action-kill-whole-line (pt)
+        (save-excursion
+          (goto-char pt)
+          (kill-whole-line))
+        (select-window
+         (cdr
+          (ring-ref avy-ring 0)))
+        t)
+
+      (setf (alist-get ?k avy-dispatch-alist) 'avy-action-kill-stay
+            (alist-get ?K avy-dispatch-alist) 'avy-action-kill-whole-line)
+
+      (defun avy-action-copy-whole-line (pt)
+      (save-excursion
+        (goto-char pt)
+        (cl-destructuring-bind (start . end)
+            (bounds-of-thing-at-point 'line)
+          (copy-region-as-kill start end)))
+      (select-window
+       (cdr
+        (ring-ref avy-ring 0)))
+      t)
+
+    (defun avy-action-yank-whole-line (pt)
+      (avy-action-copy-whole-line pt)
+      (save-excursion (yank))
+      t)
+
+    (setf (alist-get ?y avy-dispatch-alist) 'avy-action-yank
+          (alist-get ?w avy-dispatch-alist) 'avy-action-copy
+          (alist-get ?W avy-dispatch-alist) 'avy-action-copy-whole-line
+          (alist-get ?Y avy-dispatch-alist) 'avy-action-yank-whole-line)
+
+    (defun avy-action-teleport-whole-line (pt)
+      (avy-action-kill-whole-line pt)
+      (save-excursion (yank)) t)
+
+  (setf (alist-get ?t avy-dispatch-alist) 'avy-action-teleport
+        (alist-get ?T avy-dispatch-alist) 'avy-action-teleport-whole-line)
+
+  (defun avy-action-embark (pt)
+  (unwind-protect
+      (save-excursion
+        (goto-char pt)
+        (embark-act))
+    (select-window
+     (cdr (ring-ref avy-ring 0))))
+  t)
+
+(setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark)
+
 #+end_src
 ** Beacon
 #+begin_src emacs-lisp
@@ -653,7 +774,30 @@ setup no littering option
     (add-to-list 'apheleia-mode-alist '(js-ts-mode . prettier))
     (apheleia-global-mode +1))
 #+end_src
+** Markdown mode
+#+begin_src emacs-lisp
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
+#+end_src
+
 * Programming Modes
+** RestClient
+#+begin_src emacs-lisp
+(use-package restclient)
+#+end_src
+** Kotlin
+#+begin_src emacs-lisp
+  (use-package kotlin-mode
+    :after (lsp-mode dap-mode)
+    ;; :config
+    ;; (require 'dap-kotlin)
+    ;; ;; should probably have been in dap-kotlin instead of lsp-kotlin
+    ;; (setq lsp-kotlin-debug-adapter-path (or (executable-find "kotlin-debug-adapter") ""))
+    :hook
+    (kotlin-mode . lsp))
+#+end_src
 ** Typescript
 #+begin_src emacs-lisp
   (use-package typescript-ts-mode
@@ -689,12 +833,76 @@ setup no littering option
     )
 
 #+end_src
+** jtsx mode
+#+begin_src emacs-lisp
+(use-package jtsx
+  :ensure t
+  :mode (("\\.jsx?\\'" . jtsx-jsx-mode)
+         ("\\.tsx\\'" . jtsx-tsx-mode)
+         ("\\.ts\\'" . jtsx-typescript-mode))
+  :commands jtsx-install-treesit-language
+  :hook ((jtsx-jsx-mode . hs-minor-mode)
+         (jtsx-tsx-mode . hs-minor-mode)
+         (jtsx-typescript-mode . hs-minor-mode))
+  :custom
+  ;; Optional customizations
+  ;; (js-indent-level 2)
+  ;; (typescript-ts-mode-indent-offset 2)
+  ;; (jtsx-switch-indent-offset 0)
+  ;; (jtsx-indent-statement-block-regarding-standalone-parent nil)
+  ;; (jtsx-jsx-element-move-allow-step-out t)
+   (jtsx-enable-jsx-electric-closing-element t)
+  ;; (jtsx-enable-electric-open-newline-between-jsx-element-tags t)
+  ;; (jtsx-enable-jsx-element-tags-auto-sync nil)
+  ;; (jtsx-enable-all-syntax-highlighting-features t)
+  :config
+  (defun jtsx-bind-keys-to-mode-map (mode-map)
+    "Bind keys to MODE-MAP."
+    (define-key mode-map (kbd "C-c C-j") 'jtsx-jump-jsx-element-tag-dwim)
+    (define-key mode-map (kbd "C-c j o") 'jtsx-jump-jsx-opening-tag)
+    (define-key mode-map (kbd "C-c j c") 'jtsx-jump-jsx-closing-tag)
+    (define-key mode-map (kbd "C-c j r") 'jtsx-rename-jsx-element)
+    (define-key mode-map (kbd "C-c <down>") 'jtsx-move-jsx-element-tag-forward)
+    (define-key mode-map (kbd "C-c <up>") 'jtsx-move-jsx-element-tag-backward)
+    (define-key mode-map (kbd "C-c C-<down>") 'jtsx-move-jsx-element-forward)
+    (define-key mode-map (kbd "C-c C-<up>") 'jtsx-move-jsx-element-backward)
+    (define-key mode-map (kbd "C-c C-S-<down>") 'jtsx-move-jsx-element-step-in-forward)
+    (define-key mode-map (kbd "C-c C-S-<up>") 'jtsx-move-jsx-element-step-in-backward)
+    (define-key mode-map (kbd "C-c j w") 'jtsx-wrap-in-jsx-element)
+    (define-key mode-map (kbd "C-c j u") 'jtsx-unwrap-jsx)
+    (define-key mode-map (kbd "C-c j d") 'jtsx-delete-jsx-node)
+    (define-key mode-map (kbd "C-c j t") 'jtsx-toggle-jsx-attributes-orientation)
+    (define-key mode-map (kbd "C-c j h") 'jtsx-rearrange-jsx-attributes-horizontally)
+    (define-key mode-map (kbd "C-c j v") 'jtsx-rearrange-jsx-attributes-vertically))
+    
+  (defun jtsx-bind-keys-to-jtsx-jsx-mode-map ()
+      (jtsx-bind-keys-to-mode-map jtsx-jsx-mode-map))
+
+  (defun jtsx-bind-keys-to-jtsx-tsx-mode-map ()
+      (jtsx-bind-keys-to-mode-map jtsx-tsx-mode-map))
+
+  (add-hook 'jtsx-jsx-mode-hook 'jtsx-bind-keys-to-jtsx-jsx-mode-map)
+  (add-hook 'jtsx-tsx-mode-hook 'jtsx-bind-keys-to-jtsx-tsx-mode-map))
+#+end_src
+** Pretterjs
+#+begin_src emacs-lisp
+  (use-package prettier-js
+    :ensure t)
+  (add-hook 'web-mode-hook #'(lambda ()
+                               (enable-minor-mode
+                                '("\\.jsx?\\'" . prettier-js-mode))
+  			     (enable-minor-mode
+                                '("\\.tsx?\\'" . prettier-js-mode))))
+#+end_src
+>>>>>>> Stashed changes
 ** Flycheck
 #+begin_src emacs-lisp
   (use-package flycheck
     :ensure t
     :config
     (flycheck-add-mode 'javascript-eslint 'typescript-mode)
+    (flycheck-add-mode 'javascript-eslint 'tsx-ts-mode)
+    (flycheck-add-mode 'javascript-eslint 'typescript-ts-mode)
     (flycheck-add-mode 'javascript-eslint 'typescript-tsx-mode)
     (flycheck-add-mode 'javascript-eslint 'web-mode)
     :init (global-flycheck-mode))
@@ -726,7 +934,9 @@ setup no littering option
   							       tsx-ts-mode) . lsp-deferred))
     :commands lsp
     :config
+    (advice-add #'lsp-completion-at-point :around #'cape-wrap-noninterruptible)
     (setq lsp-enable-which-key-integration t)
+    
     (setq lsp-auto-guess-root t)
     (setq lsp-log-io nil)
     (setq lsp-restart 'auto-restart)
@@ -834,10 +1044,31 @@ setup no littering option
 
   (add-hook 'c-mode-hook #'foo)
   (add-hook 'c++-mode-hook #'foo)
-
   ;; enable static analysis
   (setq flycheck-clangcheck-analyze t)
 
+#+end_src
+** Fix Clipboard Issue
+Cant paste from system clipboard
+#+begin_src emacs-lisp
+(when (string= (getenv "XDG_SESSION_TYPE") "wayland")
+  (setq wl-copy-process nil)
+
+  (defun wl-copy (text)
+    (setq wl-copy-process (make-process :name "wl-copy"
+                                        :buffer nil
+                                        :command '("wl-copy" "-f" "-n")
+                                        :connection-type 'pipe))
+    (process-send-string wl-copy-process text)
+    (process-send-eof wl-copy-process))
+
+  (defun wl-paste ()
+    (if (and wl-copy-process (process-live-p wl-copy-process))
+        nil ; should return nil if we're the current paste owner
+        (shell-command-to-string "wl-paste -n | tr -d \r")))
+
+  (setq interprogram-cut-function 'wl-copy)
+  (setq interprogram-paste-function 'wl-paste))
 #+end_src
 ** Ace window
 #+begin_src emacs-lisp
@@ -949,4 +1180,10 @@ setup no littering option
              (meow-global-mode 1)
              (meow-setup))
 
+#+end_src
+*** Meow Treesitter
+#+begin_src emacs-lisp
+    (use-package meow-tree-sitter
+      :custom
+      (meow-tree-sitter-register-defaults))
 #+end_src
