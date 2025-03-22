@@ -1,6 +1,17 @@
 (provide 'programming-config)
 
 
+(use-package astro-ts-mode
+  :mode "\\.astro\\'"
+  )
+
+
+(add-to-list
+ 'apheleia-formatters
+ '(prettier-astro npx "prettier" "--stdin-filepath" filepath "--parser=astro"
+                  (apheleia-formatters-indent "--use-tabs" "--tab-width" 'astro-ts-mode-indent-offset)))
+
+(add-to-list 'apheleia-mode-alist '(astro-ts-mode . prettier-astro))
 (use-package restclient)
 
 (use-package kotlin-mode

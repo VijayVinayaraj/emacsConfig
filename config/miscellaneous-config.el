@@ -332,3 +332,27 @@
   (dirvish-peek-mode) ; Preview files in minibuffer
   (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
   )
+
+
+
+(use-package howm
+  :ensure t
+  :init
+  ;; Where to store the files?
+  (setq howm-directory "~/orgRoam/pages/")
+  (setq howm-home-directory howm-directory)
+  ;; What format to use for the files?
+  (setq howm-file-name-format "%Y-%m-%d-%H%M%S.org")
+  (setq howm-view-title-header "*")
+  (setq howm-dtime-format "<%Y-%m-%d %a %H:%M>")
+  ;; Avoid conflicts with Org-mode by changing Howm's prefix from "C-c ,".
+  (setq howm-prefix (kbd "C-c ;"))
+  :bind*
+  ;; Conveniently open the Howm menu with "C-c ; ;".
+  ("C-c ; ;" . howm-menu))
+
+
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
